@@ -184,17 +184,17 @@ namespace PDT.Plugins.Essentials.Rooms
                 {
                     if (!string.IsNullOrEmpty(rightDisp.Key))
                     {
-                        LeftDisplay = DeviceManager.GetDeviceForKey(rightDisp.Key) as IRoutingSinkWithSwitching;
+                        RightDisplay = DeviceManager.GetDeviceForKey(rightDisp.Key) as IRoutingSinkWithSwitching;
                         Displays.Add(eSourceListItemDestinationTypes.rightDisplay, RightDisplay);
                     }
                     else
-                        Debug.Console(0, this, "Unable to get LeftDisplay for Room");
+                        Debug.Console(0, this, "Unable to get RightDisplay for Room");
                 }
 
                 VideoCodec = DeviceManager.GetDeviceForKey(PropertiesConfig.VideoCodecKey) as
                    PepperDash.Essentials.Devices.Common.VideoCodec.VideoCodecBase;
                 if (VideoCodec == null)
-                    throw new ArgumentNullException("codec cannot be null");
+                    Debug.Console(0, this, "No Video Codec found - codec features disabled");
 
                 AudioCodec = DeviceManager.GetDeviceForKey(PropertiesConfig.AudioCodecKey) as
                     PepperDash.Essentials.Devices.Common.AudioCodec.AudioCodecBase;
@@ -256,17 +256,20 @@ namespace PDT.Plugins.Essentials.Rooms
                     return false;
             });
 
-            VideoCodec.CallStatusChange += (o, a) => this.InCallFeedback.FireUpdate();
+            if (VideoCodec != null)
+                VideoCodec.CallStatusChange += (o, a) => this.InCallFeedback.FireUpdate();
 
             if (AudioCodec != null)
                 AudioCodec.CallStatusChange += (o, a) => this.InCallFeedback.FireUpdate();
 
-            IsSharingFeedback = new BoolFeedback(() => VideoCodec.SharingContentIsOnFeedback.BoolValue);
-            VideoCodec.SharingContentIsOnFeedback.OutputChange += (o, a) => this.IsSharingFeedback.FireUpdate();
+            IsSharingFeedback = new BoolFeedback(() => VideoCodec != null && VideoCodec.SharingContentIsOnFeedback.BoolValue);
+            if (VideoCodec != null)
+                VideoCodec.SharingContentIsOnFeedback.OutputChange += (o, a) => this.IsSharingFeedback.FireUpdate();
 
             // link privacy to VC (for now?)
-            PrivacyModeIsOnFeedback = new BoolFeedback(() => VideoCodec.PrivacyModeIsOnFeedback.BoolValue);
-            VideoCodec.PrivacyModeIsOnFeedback.OutputChange += (o, a) => this.PrivacyModeIsOnFeedback.FireUpdate();
+            PrivacyModeIsOnFeedback = new BoolFeedback(() => VideoCodec != null && VideoCodec.PrivacyModeIsOnFeedback.BoolValue);
+            if (VideoCodec != null)
+                VideoCodec.PrivacyModeIsOnFeedback.OutputChange += (o, a) => this.PrivacyModeIsOnFeedback.FireUpdate();
 
             CallTypeFeedback = new IntFeedback(() => 0);
 
@@ -353,7 +356,8 @@ namespace PDT.Plugins.Essentials.Rooms
         /// </summary>
         protected override void EndShutdown()
         {
-            VideoCodec.EndAllCalls();
+            if (VideoCodec != null)
+                VideoCodec.EndAllCalls();
 
             SetDefaultLevels();
 
@@ -651,17 +655,20 @@ namespace PDT.Plugins.Essentials.Rooms
 
         public void PrivacyModeOff()
         {
-            VideoCodec.PrivacyModeOff();
+            if (VideoCodec != null)
+                VideoCodec.PrivacyModeOff();
         }
 
         public void PrivacyModeOn()
         {
-            VideoCodec.PrivacyModeOn();
+            if (VideoCodec != null)
+                VideoCodec.PrivacyModeOn();
         }
 
         public void PrivacyModeToggle()
         {
-            VideoCodec.PrivacyModeToggle();
+            if (VideoCodec != null)
+                VideoCodec.PrivacyModeToggle();
         }
 
         #endregion
