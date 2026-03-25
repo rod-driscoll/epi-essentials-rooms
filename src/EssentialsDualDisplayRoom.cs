@@ -167,8 +167,8 @@ namespace PDT.Plugins.Essentials.Rooms
                 PropertiesConfig = JsonConvert.DeserializeObject<EssentialsDualDisplayRoomPropertiesConfig>
                     (config.Properties.ToString());
 
-                var leftDisp = PropertiesConfig.Displays[eSourceListItemDestinationTypes.leftDisplay];
-                if (leftDisp != null)
+                DisplayItem leftDisp;
+                if (PropertiesConfig.Displays.TryGetValue(eSourceListItemDestinationTypes.leftDisplay, out leftDisp) && leftDisp != null)
                 {
                     if (!string.IsNullOrEmpty(leftDisp.Key))
                     {
@@ -178,9 +178,11 @@ namespace PDT.Plugins.Essentials.Rooms
                     else
                         Debug.Console(0, this, "Unable to get LeftDisplay for Room");
                 }
+                else
+                    Debug.Console(0, this, "No leftDisplay entry in displays config");
 
-                var rightDisp = PropertiesConfig.Displays[eSourceListItemDestinationTypes.rightDisplay];
-                if (rightDisp != null)
+                DisplayItem rightDisp;
+                if (PropertiesConfig.Displays.TryGetValue(eSourceListItemDestinationTypes.rightDisplay, out rightDisp) && rightDisp != null)
                 {
                     if (!string.IsNullOrEmpty(rightDisp.Key))
                     {
@@ -190,6 +192,8 @@ namespace PDT.Plugins.Essentials.Rooms
                     else
                         Debug.Console(0, this, "Unable to get RightDisplay for Room");
                 }
+                else
+                    Debug.Console(0, this, "No rightDisplay entry in displays config");
 
                 VideoCodec = DeviceManager.GetDeviceForKey(PropertiesConfig.VideoCodecKey) as
                    PepperDash.Essentials.Devices.Common.VideoCodec.VideoCodecBase;
