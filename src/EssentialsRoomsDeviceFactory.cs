@@ -11,8 +11,10 @@ namespace PDT.Plugins.Essentials.Rooms
     /// Registers all room types from this plugin with the Essentials v2 DeviceFactory.
     /// Discovered and called automatically by DeviceFactory via reflection on startup.
     /// </summary>
-    public class EssentialsRoomsDeviceFactory : IDeviceFactory
+    public class EssentialsRoomsDeviceFactory : IPluginDeviceFactory
     {
+        public string MinimumEssentialsFrameworkVersion { get; } = "2.0.0";
+
         public List<string> TypeNames { get; } = new List<string>
         {
             "huddle",
